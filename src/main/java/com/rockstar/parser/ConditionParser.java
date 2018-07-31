@@ -17,7 +17,9 @@ public class ConditionParser {
 	private final static List<String> IS_IDS=Arrays.asList(" is ");
 	private final static Set<String> HIGHER_IDS=ImmutableSet.of("higher","greater","bigger","stronger");
 	private final static Set<String> LOWER_IDS=ImmutableSet.of("lower","less","smaller","weaker");
-	
+	private final static Set<String> ASHIGH_IDS=ImmutableSet.of("as high","as great","as big","as strong");
+	private final static Set<String> ASLOW_IDS=ImmutableSet.of("as low","as little","as small","as weak");
+
 	public static Condition parseCondition(String str)	{
 		// "Is not" must be tried before "is" because "is not" includes "is".
 		for (String notId:IS_NOT_IDS) if (str.contains(notId)) return new InvertedCondition(parseCondition(str,notId));
@@ -34,6 +36,14 @@ public class ConditionParser {
 			if (HIGHER_IDS.contains(resplit[0])) return new ComparisonCondition(lhs,resplit[1],Comparison.HIGHER);
 			else if (LOWER_IDS.contains(resplit[0])) return new ComparisonCondition(lhs,resplit[1],Comparison.LOWER);
 			else throw new RockstarException("Malformed condition.");
-		}	else return new ComparisonCondition(lhs,split[1],Comparison.EQUAL);
+		}
+		else if (split[1].contains(" as ")) {
+			String[] resplit=split[1].split(" as ");
+			if (ASHIGH_IDS.contains(resplit[0])) return new ComparisonCondition(lhs,resplit[1],Comparison.ASHIGH);
+			else if (ASLOW_IDS.contains(resplit[0])) return new ComparisonCondition(lhs,resplit[1],Comparison.ASLOW);
+			else throw new RockstarException("Malformed condition.");
+		}
+
+		else return new ComparisonCondition(lhs,split[1],Comparison.EQUAL);
 	}
 }
